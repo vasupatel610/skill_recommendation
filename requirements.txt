@@ -1,0 +1,22 @@
+fastapi
+uvicorn
+pydantic
+pydantic-settings
+python-dotenv
+
+# LLM & RAG
+groq
+langchain
+langchain-community
+chromadb
+sentence-transformers
+
+# Data Processing
+pandas
+numpy
+openpyxl
+
+# Utilities
+requests
+aiohttp
+python-multipart
