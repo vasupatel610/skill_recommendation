@@ -142,3 +142,17 @@ also for LLM part we will use groq free models
 
 also create fastapi to share the recommendatuions of skill of the role
 and to get the jobtitle and discription of that job
+
+
+
+
+
+installations steps:
+
+clone repo : git clone
+create vertual enviroment : python -m venv venv
+activate : source venv/bin/activate
+install npm for PM2 : sudo apt install npm
+install PM@ npm install pm2 -g
+install requirements : pip3 install -r requirements.txt
+run this command : uvicorn app.main:app --reload
