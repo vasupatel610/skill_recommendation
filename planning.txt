@@ -1,0 +1,359 @@
+# Documentation: Skills & Requirements Framework Integration in Skill 360
+
+**The goal that we want to achieve**
+
+Skills and Requirements - For specific occupation frameworks by country, we aim to provide options to select the appropriate framework with hard skills and soft skills based on the job title.
+
+## **Some research on frameworks**
+
+[Global Skills & Occupation Frameworks and the differences between them](https://www.notion.so/Global-Skills-Occupation-Frameworks-and-the-differences-between-them-27a07f994f6f80b2941fc3f29b84ee77?pvs=21)
+
+      We will use **datasets** from each framework and store them in the RAG as a **knowledge base**.
+
+[Flow to use the Dataset for skill recommendation in skill 360](https://www.notion.so/Flow-to-use-the-Dataset-for-skill-recommendation-in-skill-360-27a07f994f6f8065bef4de08d891b05e?pvs=21)
+
+      This flow is a basic approach
+
+## **Also, we can do something beyond this basic approach**
+
+     
+
+ **Analyze industry reports** to capture emerging skills (e.g., AI, green jobs). Add that to the Knowledgebase to fill the gaps which are not specified in the framework dataset
+
+ **Incorporate company-specific skills** from past job descriptions or performance reviews.
+
+ ****
+
+ **Cluster skills** into categories (technical, management, interpersonal, domain-specific), then use that with this dataset framework so RAG will work more role-specific.
+
+**Personalized job role** skill recommendation identifies the exact hard and soft skills a person needs based on their specific job title, responsibilities, and career goals. It tailors learning paths and RAG (retrieval-augmented) suggestions to fill skill gaps efficiently. This ensures the company gets relevant candidates at the end.
+
+
+
+based on this table, we can get the difference between them, so we can differentiate the features that we have to focus on in the dataset from each country framework
+
+| Region / Country | Framework | Managed By | Scope | Unique Features | Difference vs Others |
+| --- | --- | --- | --- | --- | --- |
+| **United States** | **O*NET (Occupational Information Network)** | U.S. Dept. of Labor | 900+ occupations | Very **granular** data: skills, knowledge, abilities, work styles, tools, technologies | U.S.-centric, English-only, focused more on occupation details than qualifications |
+| **European Union** | **ESCO (European Skills, Competences, Qualifications and Occupations)** | European Commission | 3 pillars: Skills, Occupations, Qualifications | **Multilingual** (29 EU languages), links skills ↔ jobs ↔ education; designed for mobility across EU | Broader & multilingual, less detailed than O*NET on task-level |
+| **India** | **National Skills Qualification Framework (NSQF)** | National Skill Development Agency (NSDA) | 10 levels of skills/qualifications | Level-based (from school → higher education → workplace); integrates vocational + academic | Focused on education–training alignment, not as detailed on occupations |
+| **Singapore** | **Skills Framework (SkillsFuture Singapore)** | SkillsFuture SG (Govt.) | Sectoral frameworks (ICT, Finance, Logistics, etc.) | Maps **job roles → skills → career pathways → training programs** | Highly **industry-driven**, directly tied to training subsidies |
+| **Australia** | **Australian Skills Classification (ASC)** + **ANZSCO** | Australian Govt. Dept. of Education, Skills & Employment | Jobs + skills for Australia & New Zealand | Uses “clusters of skills” → core, specialist, technology; strong linkage to **vocational training (TAFE, RTOs)** | Strong vocational orientation compared to EU/US |
+| **Canada** | **National Occupational Classification (NOC)** | Employment and Social Development Canada (ESDC) | 500+ occupational groups | Occupations grouped by Training, Education, Experience & Responsibility (TEER) | Focus on labor market statistics, immigration policies |
+| **UK** | **National Occupational Standards (NOS)** | UK Commission for Employment & Skills (Sector Skills Councils) | Standards for competencies in various jobs | Performance criteria + knowledge/skills requirements per occupation | More competency/performance focused, less about qualifications |
+| **OECD (Global)** | **OECD Skills for Jobs Database** | OECD | Global skills mismatch analysis | Tracks **emerging skill shortages & surpluses** across countries | Analytical focus (policy-driven), not a classification framework |
+
+## **Main Differences**
+
+1. **Granularity**
+    - **O*NET (US)** → Very detailed at the occupation level (tasks, tools, skills).
+    - **ESCO (EU)** → Broader, multilingual, connects skills–occupations–qualifications.
+    - **India NSQF** → Level-based skill progression, linked to education/training.
+2. **Orientation**
+    - **US (O*NET)** → Job market & workforce analytics.
+    - **EU (ESCO)** → Labor mobility & multilingual comparability.
+    - **India (NSQF)** → Education–industry alignment.
+    - **Singapore/Australia** → Career pathways + vocational training focus.
+3. **Language / Localization**
+    - O*NET → English only.
+    - ESCO → 29 EU languages.
+    - India → Multiple Indian languages for skilling programs.
+4. **Integration with Education**
+    - **India NSQF & Australia ASC** are strongly tied to formal education/vocational training.
+    - **ESCO** connects qualifications with occupations.
+    - **O*NET** is less connected to education qualifications.
+
+**Data Source for the frameworks:
+
+o*net =** https://www.onetcenter.org/database.html#all-files
+
+**ESCO** = https://esco.ec.europa.eu/en/use-esco/download
+
+
+---
+
+## **Skill Recommendation Engine**
+
+**Objective:**
+
+Create a Skill Recommendation Engine that takes a job title (and optionally, a country or region) and delivers contextual skill recommendations. This engine will leverage frameworks like O*NET, ESCO, or NSQF to identify both hard and soft skills that are pertinent to the specified occupation.
+
+**Importance:**
+
+1. **Consistency:** Job titles can be inconsistent (“Software Engineer” vs “Developer”). Occupation frameworks offer standardized skill sets.
+2. **Personalization:** By tuning recommendations based on region (like the US, EU, or India), we can accommodate market-specific requirements.
+3. **Scalability:** Using Retrieval-Augmented Generation (RAG) allows us to query extensive frameworks without the need to retrain models.
+4. **Future-proofing:** The system can be adapted to include new and emerging skills (think AI, cloud technologies, sustainability) dynamically.
+
+**Approach & Workflow:**
+
+1. **Job Title Normalization:**
+    - Use ISCO as a global occupational anchor.
+    - Maintain a mapping between various frameworks (O*NET, ESCO, NSQF, ASC, NOC).
+    - Normalize the input job title to a standardized occupation code.
+2. **Framework Lookup:**
+    
+    Based on the country:
+    
+    - US → O*NET
+    - EU → ESCO
+    - India → NSQF
+    - Singapore → SkillsFuture
+    - And others as necessary.
+    This step involves retrieving skills linked to the standardized occupation.
+3. **Skill Categorization:**
+    - Separate the skills into Hard Skills (technical, domain-specific) and Soft Skills (communication, leadership, adaptability).
+    - Assign Proficiency Levels (ranging from Beginner to Expert).
+4. **RAG Layer:**
+    - Store the framework datasets (O*NET, ESCO, NSQF, etc.) within a vector database.
+    - Use embeddings to handle queries such as:
+        - “What skills does a Data Scientist need in India?”
+        - “Show me the soft skills for a Sales Manager in Germany.”
+        This setup ensures that the most up-to-date data is utilized at the query time. The generation layer formats the output into a user-friendly recommendation list.
+        
+
+**Example Recommendation Flow:**
+
+**Input:**
+
+- Job Title: Data Scientist
+- Country: US
+
+**Framework:**
+
+- O*NET (US)
+
+**Output (via RAG):**
+
+- **Hard Skills:** Python, R, Machine Learning, Data Visualization, SQL, Cloud Computing.
+- **Soft Skills:** Analytical thinking, Communication, Collaboration, Problem-solving, Attention to detail.
+- **Proficiency Mapping:**
+    - Python → Advanced
+    - SQL → Intermediate
+    - Communication → Intermediate
+    
+
+This structure allows us to effectively match skills to job titles, ensuring that recommendations are relevant and up-to-date.
+
+
+
+
+also for LLM part we will use groq free models
+
+also create fastapi to share the recommendatuions of skill of the role
+and to get the jobtitle and discription of that job
+
+
+
+
+
+installations steps:
+
+clone repo : git clone
+create vertual enviroment : python -m venv venv
+activate : source venv/bin/activate
+install npm for PM2 : sudo apt install npm
+install PM@ npm install pm2 -g
+install requirements : pip3 install -r requirements.txt
+run this command : uvicorn app.main:app --reload
+
+
+
+
+in this project i want to make some changes like in this api recomend-skill i want proficiency level as skill requiered as request but some skill like for beggiener role some skill has to be intermediet and as proficiency of that role skill not static like begginer then respond all begginer we have to responsd as per the role required proficiency for each skills
+currently getting this response
+Request body
+{
+  "job_title": "data science",
+  "country": "USA",
+  "proficiency": "Begginer"
+}
+Response body
+
+{
+  "job_title": "data science",
+  "country": "USA",
+  "skills": [
+    {
+      "framework": "O*NET",
+      "hard_skills": [
+        {
+          "name": "Python",
+          "category": "Hard",
+          "proficiency": "Begginer"
+        },
+        {
+          "name": "Statistics",
+          "category": "Hard",
+          "proficiency": "Begginer"
+        },
+        {
+          "name": "Data Analysis",
+          "category": "Hard",
+          "proficiency": "Begginer"
+        },
+        {
+          "name": "Data Visualization",
+          "category": "Hard",
+          "proficiency": "Begginer"
+        },
+        {
+          "name": "SQL",
+          "category": "Hard",
+          "proficiency": "Begginer"
+        },
+        {
+          "name": "Machine Learning",
+          "category": "Hard",
+          "proficiency": "Begginer"
+        },
+        {
+          "name": "Data Mining",
+          "category": "Hard",
+          "proficiency": "Begginer"
+        },
+        {
+          "name": "Programming",
+          "category": "Hard",
+          "proficiency": "Begginer"
+        },
+        {
+          "name": "Database Management",
+          "category": "Hard",
+          "proficiency": "Begginer"
+        }
+      ],
+      "soft_skills": [
+        {
+          "name": "Problem Solving",
+          "category": "Soft",
+          "proficiency": "Begginer"
+        }
+      ]
+    },
+    {
+      "framework": "ESCO",
+      "hard_skills": [
+        {
+          "name": "Python",
+          "category": "Hard",
+          "proficiency": "Begginer"
+        },
+        {
+          "name": "Data Analysis",
+          "category": "Hard",
+          "proficiency": "Begginer"
+        },
+        {
+          "name": "Machine Learning",
+          "category": "Hard",
+          "proficiency": "Begginer"
+        },
+        {
+          "name": "SQL",
+          "category": "Hard",
+          "proficiency": "Begginer"
+        },
+        {
+          "name": "Data Visualization",
+          "category": "Hard",
+          "proficiency": "Begginer"
+        },
+        {
+          "name": "Statistics",
+          "category": "Hard",
+          "proficiency": "Begginer"
+        },
+        {
+          "name": "Data Mining",
+          "category": "Hard",
+          "proficiency": "Begginer"
+        },
+        {
+          "name": "R",
+          "category": "Hard",
+          "proficiency": "Begginer"
+        }
+      ],
+      "soft_skills": [
+        {
+          "name": "Communication",
+          "category": "Soft",
+          "proficiency": "Begginer"
+        },
+        {
+          "name": "Teamwork",
+          "category": "Soft",
+          "proficiency": "Begginer"
+        }
+      ]
+    }
+  ]
+}
+
+this response i dont want by mapping i want LLM to give response based on the job_tiltle and proficiency LLM has to give response for each skill like this
+
+
+{
+  "job_title": "data science",
+  "country": "USA",
+  "skills": [
+    {
+      "framework": "O*NET",
+      "hard_skills": [
+        {
+          "name": "Python",
+          "category": "Hard",
+          "proficiency": "Intermediate"
+        },
+        {
+          "name": "Statistics",
+          "category": "Hard",
+          "proficiency": "Intermediate"
+        },
+        {
+          "name": "Data Analysis",
+          "category": "Hard",
+          "proficiency": "Beginner"
+        },
+        {
+          "name": "Data Visualization",
+          "category": "Hard",
+          "proficiency": "Beginner"
+        },
+        {
+          "name": "SQL",
+          "category": "Hard",
+          "proficiency": "Intermediate"
+        },
+        {
+          "name": "Machine Learning",
+          "category": "Hard",
+          "proficiency": "Beginner"
+        },
+        {
+          "name": "Data Mining",
+          "category": "Hard", 
+          "proficiency": "Beginner"
+        },
+        {
+          "name": "Programming",
+          "category": "Hard",
+          "proficiency": "Intermediate"
+        },
+        {
+          "name": "Database Management",
+          "category": "Hard",
+          "proficiency": "Beginner"
+        }
+      ],
+      "soft_skills": [
+        {
+          "name": "Problem Solving",
+          "category": "Soft",
+          "proficiency": "Intermediate"
+        }
+      ]
+    }
+  ]
+}
